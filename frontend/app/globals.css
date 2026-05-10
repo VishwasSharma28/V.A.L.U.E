@@ -1,0 +1,233 @@
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@700,800,900&f[]=cabinet-grotesk@700,800,900&f[]=general-sans@400,500,600,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Manrope:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+:root {
+  /* ─ Backgrounds ─ */
+  --bg-base:     #050505;
+  --bg-elevated: #0a0a0a;
+  --bg-surface:  #0f0f0f;
+  --bg-card:     #111111;
+  --bg-glass:    rgba(255,255,255,0.02);
+
+  /* ─ Borders ─ */
+  --border-dim:    rgba(255,255,255,0.04);
+  --border-subtle: rgba(255,255,255,0.06);
+  --border-muted:  rgba(255,255,255,0.10);
+
+  /* ─ Accents ─ */
+  --teal:     #2D9B83;
+  --teal-dim: #1d6b5b;
+  --teal-glow: rgba(45,155,131,0.18);
+
+  /* ─ Text ─ */
+  --text-primary:   #F2F2F2;
+  --text-secondary: #888;
+  --text-muted:     #444;
+
+  /* ─ Fonts ─ */
+  --font-heading: 'Satoshi', 'General Sans', 'Cabinet Grotesk', sans-serif;
+  --font-body:    'Manrope', 'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', 'IBM Plex Mono', monospace;
+
+  /* ─ Spacing tokens ─ */
+  --section-y:    clamp(4rem, 8vw, 8rem);     /* py for sections */
+  --section-x:    clamp(1rem, 4vw, 4rem);     /* px for sections */
+  --card-pad:     clamp(1.5rem, 2.5vw, 2.5rem);
+  --card-pad-lg:  clamp(2rem, 3vw, 3rem);
+  --grid-gap:     clamp(1rem, 2vw, 2rem);
+  --max-w:        1500px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  line-height: 1.6;
+  /* Subtle grid texture */
+  background-image:
+    linear-gradient(rgba(255,255,255,0.016) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.016) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+h1,h2,h3,h4,h5,h6 {
+  font-family: var(--font-heading);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+/* ─ Scrollbar ─ */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+/* ─ Selection ─ */
+::selection { background: rgba(45,155,131,0.22); color: #fff; }
+
+/* ─────────────────────────────────────
+   CONTAINER SYSTEM
+───────────────────────────────────── */
+.container-main {
+  max-width: var(--max-w);
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--section-x);
+  padding-right: var(--section-x);
+}
+
+/* ─────────────────────────────────────
+   CARD SYSTEM — glass floating panels
+───────────────────────────────────── */
+.card {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden; /* prevent content from bleeding into corner radius */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  padding: var(--card-pad);
+}
+.card:hover {
+  border-color: var(--border-muted);
+  box-shadow: 0 0 48px rgba(45,155,131,0.07), 0 8px 32px rgba(0,0,0,0.4);
+}
+.card-lg {
+  padding: var(--card-pad-lg);
+  border-radius: 24px;
+}
+
+/* ─────────────────────────────────────
+   CARD-BODY — safe-zone inner padding
+   Use this inside every BorderGlow/glass card.
+   Guarantees labels never touch curved corners.
+───────────────────────────────────── */
+.card-body {
+  padding: 2rem 2rem 1.75rem;  /* 32px top = safe zone past any border-radius */
+  display: flex;
+  flex-direction: column;
+}
+/* Tighter variant for compact cards */
+.card-body-sm {
+  padding: 1.75rem 1.75rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+/* Larger variant for primary / hero cards */
+.card-body-lg {
+  padding: 2.5rem 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─────────────────────────────────────
+   SECTION LABELS
+   Small monospaced uppercase eyebrow text.
+   Always sits INSIDE the card safe zone —
+   never placed as first element without .card-body wrapper.
+───────────────────────────────────── */
+.section-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  line-height: 1;
+  /* Micro bottom margin before next element */
+  margin-bottom: 0.125rem;
+}
+/* When section-label directly follows .card-body top — already has padding */
+/* Never add extra margin-top here; card-body's padding handles the safe zone */
+
+/* ─────────────────────────────────────
+   INPUT SYSTEM
+───────────────────────────────────── */
+.input-base {
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 0.875rem 1rem;
+  color: #fff;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+  font-family: var(--font-body);
+}
+.input-base::placeholder { color: #333; }
+.input-base:focus { border-color: rgba(45,155,131,0.45); }
+
+/* ─────────────────────────────────────
+   BUTTON SYSTEM
+───────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #2D9B83, #1d6b5b);
+  color: #fff;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.875rem 2rem;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+  box-shadow: 0 0 28px rgba(45,155,131,0.35);
+}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: #aaa;
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 0.875rem;
+  padding: 0.875rem 2rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.btn-ghost:hover { color: #fff; border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.04); }
+
+/* ─────────────────────────────────────
+   TYPOGRAPHY SCALE
+───────────────────────────────────── */
+.t-hero    { font-size: clamp(4rem, 10vw, 10rem); font-weight: 900; letter-spacing: -0.03em; line-height: 0.95; }
+.t-h1      { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; }
+.t-h2      { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; }
+.t-h3      { font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 700; }
+.t-metric  { font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 900; font-family: var(--font-mono); }
+.t-body    { font-size: 0.9375rem; color: #888; line-height: 1.7; }
+.t-caption { font-size: 0.75rem; color: #555; }
+
+/* ─────────────────────────────────────
+   HELPERS
+───────────────────────────────────── */
+.divider    { height: 1px; background: var(--border-dim); }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.fade-x {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+.glow-teal    { box-shadow: 0 0 60px rgba(45,155,131,0.14); }
+.glow-teal-sm { box-shadow: 0 0 24px rgba(45,155,131,0.10); }
