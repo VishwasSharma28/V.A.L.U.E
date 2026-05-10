@@ -1,0 +1,117 @@
+'use client';
+
+import AppNav from '@/components/navbar/AppNav';
+import BorderGlow from '@/components/cards/BorderGlow';
+import { RiShieldCheckLine, RiFileCopyLine } from 'react-icons/ri';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+
+const records = [
+  { id:1, hash:'9xA4kjs82ks92kKSK2l22K', service:'Netflix Premium',    amount:'₹649',   block:'284,991,042' },
+  { id:2, hash:'7mB3hqR91jw83nNML8k11J', service:'Spotify Individual', amount:'₹119',   block:'284,991,018' },
+  { id:3, hash:'Kx92pL4qYT11mM8nPP93kK', service:'Airtel Family Plan', amount:'₹889',   block:'284,880,001' },
+  { id:4, hash:'2zA8wEr73ks11kPQ9mM82L', service:'ChatGPT Plus',       amount:'₹1,650', block:'284,500,992' },
+  { id:5, hash:'5nQ7tYu92ms83kKPR8l11M', service:'AWS Dev',            amount:'₹3,200', block:'284,100,033' },
+];
+
+export default function LedgerPage() {
+  const [copied, setCopied] = useState<number|null>(null);
+  const copy = (id:number, hash:string) => {
+    navigator.clipboard.writeText(hash);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 1500);
+  };
+
+  return (
+    <main className="min-h-screen text-white">
+      <AppNav variant="inner" showCta={false} />
+
+      <div style={{ maxWidth:'1100px', margin:'0 auto', padding:'80px 1.5rem 4rem' }}>
+
+        {/* Header */}
+        <div className="flex items-center justify-between mb-10">
+          <div>
+            <p className="section-label mb-2">Solana mainnet · Immutable audit log</p>
+            <h1 className="text-3xl font-black" style={{ fontFamily:'Satoshi,sans-serif' }}>Billing Ledger</h1>
+          </div>
+          <div className="flex items-center gap-2 px-5 py-2.5 rounded-full"
+            style={{ border:'1px solid rgba(45,155,131,0.3)', background:'rgba(45,155,131,0.06)' }}>
+            <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor:'#2D9B83' }} />
+            <span className="text-sm font-mono" style={{ color:'#2D9B83' }}>Live · Synced</span>
+          </div>
+        </div>
+
+        {/* Summary cards */}
+        <div className="grid grid-cols-3 gap-6 mb-8">
+          {[
+            { l:'Total Records',  v:'5' },
+            { l:'Verified',       v:'5 / 5' },
+            { l:'Latest Block',   v:'#284,991,042' },
+          ].map(s => (
+            <BorderGlow key={s.l} backgroundColor="#0a0a0a" borderRadius={16} glowColor="45 155 131">
+              <div className="card-body-sm" style={{ justifyContent:'space-between', minHeight:'120px' }}>
+                <p className="section-label">{s.l}</p>
+                <p className="text-2xl font-black font-mono" style={{ color:'#2D9B83' }}>{s.v}</p>
+              </div>
+            </BorderGlow>
+          ))}
+        </div>
+
+        {/* Table */}
+        <BorderGlow backgroundColor="#0a0a0a" borderRadius={20} glowColor="45 155 131">
+          <div className="pt-3 pb-1">
+            {/* Header */}
+            <div className="grid px-6 py-4 border-b border-white/[0.04]"
+              style={{ gridTemplateColumns:'2fr 1fr 1fr 2fr auto',
+                fontFamily:'"JetBrains Mono",monospace', fontSize:9,
+                letterSpacing:'0.2em', color:'#333', textTransform:'uppercase' }}>
+              <span>Service</span>
+              <span>Amount</span>
+              <span>Block</span>
+              <span>Hash</span>
+              <span>Status</span>
+            </div>
+
+            {records.map((rec, i) => (
+              <motion.div key={rec.id}
+                initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:i*0.06 }}
+                className="grid px-6 items-center border-b border-white/[0.03] last:border-0 transition-colors"
+                style={{ gridTemplateColumns:'2fr 1fr 1fr 2fr auto',
+                  minHeight:'72px', cursor:'default' }}
+                onMouseEnter={e=>(e.currentTarget.style.background='rgba(255,255,255,0.014)')}
+                onMouseLeave={e=>(e.currentTarget.style.background='transparent')}>
+                <div>
+                  <p className="text-sm text-zinc-200 font-medium">{rec.service}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-mono font-bold text-white">{rec.amount}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-mono text-zinc-500">#{rec.block.split(',').pop()?.trim()}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <p className="text-xs font-mono truncate" style={{ color:'#2D9B83' }}>
+                    {rec.hash.slice(0,16)}...
+                  </p>
+                  <button onClick={() => copy(rec.id, rec.hash)}
+                    className="text-zinc-700 hover:text-zinc-300 transition-colors flex-shrink-0 p-1.5 rounded-lg hover:bg-white/5">
+                    {copied === rec.id
+                      ? <span className="text-[9px] font-mono" style={{ color:'#2D9B83' }}>✓ copied</span>
+                      : <RiFileCopyLine size={12} />}
+                  </button>
+                </div>
+                <div className="flex items-center gap-2 justify-end">
+                  <RiShieldCheckLine size={16} style={{ color:'#2D9B83' }} />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </BorderGlow>
+
+        <p className="text-center text-xs font-mono mt-8" style={{ color:'#333' }}>
+          All records cryptographically verified · Solana mainnet · Immutable
+        </p>
+      </div>
+    </main>
+  );
+}
