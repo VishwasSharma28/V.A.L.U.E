@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import ClickSpark from '@/components/effects/ClickSpark';
+<<<<<<< HEAD
 import { Providers } from './providers';
+=======
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e
 
 export const metadata: Metadata = {
   title: 'V.A.L.U.E — Value Assessment & Ledger for Usage Efficiency',
@@ -19,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body>
+<<<<<<< HEAD
         <Providers>
           <ClickSpark
             sparkColor="#ffffff"
@@ -30,8 +34,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
           </ClickSpark>
         </Providers>
+=======
+        <ClickSpark
+          sparkColor="#ffffff"
+          sparkSize={10}
+          sparkRadius={15}
+          sparkCount={8}
+          duration={400}
+        >
+          {children}
+        </ClickSpark>
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e
       </body>
     </html>
   );
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e

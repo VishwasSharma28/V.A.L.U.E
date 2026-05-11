@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # V.A.L.U.E — Value Assessment & Ledger for Usage Efficiency
 
 > **Bloomberg Terminal × Apple × Cyberpunk Fintech** — A premium AI-powered financial intelligence platform for tracking, analyzing, and optimizing subscription value. Blockchain-verified. Real-time. Investor-demo ready.
@@ -339,3 +340,7 @@ The seeded data includes:
 ---
 
 *V.A.L.U.E — Know exactly what every rupee is worth.*
+=======
+# V.A.L.U.E
+solana frontier hackathon
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e

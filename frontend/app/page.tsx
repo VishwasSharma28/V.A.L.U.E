@@ -9,7 +9,11 @@ import Counter from '@/components/counters/Counter';
 import LogoLoop from '@/components/loops/LogoLoop';
 import Link from 'next/link';
 import Image from 'next/image';
+<<<<<<< HEAD
 import { motion, useInView, Transition } from 'framer-motion';
+=======
+import { motion, useInView } from 'framer-motion';
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e
 import { useRef } from 'react';
 import { SiNetflix, SiSpotify, SiOpenai, SiYoutube, SiSteam } from 'react-icons/si';
 import {
@@ -50,6 +54,7 @@ const steps = [
 ];
 
 /* ─ Reusable section reveal ─ */
+<<<<<<< HEAD
 const EASE: Transition = { duration: 0.8, ease: 'easeOut' };
 const EASE_STAGGER: Transition = { duration: 0.7, ease: 'easeOut' };
 
@@ -57,13 +62,23 @@ const sectionReveal = {
   initial:    { opacity: 0, y: 32, filter: 'blur(4px)' },
   whileInView:{ opacity: 1, y: 0,  filter: 'blur(0px)' },
   transition: EASE,
+=======
+const sectionReveal = {
+  initial:    { opacity: 0, y: 32, filter: 'blur(4px)' },
+  whileInView:{ opacity: 1, y: 0,  filter: 'blur(0px)' },
+  transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e
   viewport:   { once: true, margin: '-80px' },
 };
 
 const stagger = (i: number) => ({
   initial:    { opacity: 0, y: 28, filter: 'blur(3px)', scale: 0.98 },
   whileInView:{ opacity: 1, y: 0,  filter: 'blur(0px)', scale: 1 },
+<<<<<<< HEAD
   transition: { ...EASE_STAGGER, delay: i * 0.1 } as Transition,
+=======
+  transition: { delay: i * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e
   viewport:   { once: true, margin: '-60px' },
 });
 
@@ -218,7 +233,11 @@ export default function HomePage() {
       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <section style={{ borderTop:'1px solid rgba(255,255,255,0.04)', borderBottom:'1px solid rgba(255,255,255,0.04)' }}>
         <div className="container-main">
+<<<<<<< HEAD
           <div className="grid grid-cols-2 xl:grid-cols-4">
+=======
+          <div className="grid grid-cols-2 xl:grid-cols-4" style={{ divideX:'1px solid rgba(255,255,255,0.04)' }}>
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e
             {[
               { value:148320,  label:'Subscriptions Analyzed', change:'+4.2%', prefix:'' },
               { value:8729910, label:'Wasted Value Detected',  change:'+1.3%', prefix:'₹' },

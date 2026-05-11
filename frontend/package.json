@@ -9,19 +9,28 @@
     "lint": "eslint"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@solana/web3.js": "^1.98.4",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.105.4",
     "@tanstack/react-query": "^5.100.9",
     "axios": "^1.16.0",
+=======
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.105.4",
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e
     "framer-motion": "^12.38.0",
     "gsap": "^3.15.0",
     "next": "16.2.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-icons": "^5.6.0",
+<<<<<<< HEAD
     "recharts": "^3.8.1",
     "zustand": "^5.0.13"
+=======
+    "recharts": "^3.8.1"
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

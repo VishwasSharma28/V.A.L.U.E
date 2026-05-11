@@ -5,27 +5,42 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BorderGlow from '@/components/cards/BorderGlow';
 import BlurText from '@/components/effects/BlurText';
+<<<<<<< HEAD
 import { authAPI } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
 import { FcGoogle } from 'react-icons/fc';
 import { RiLoader4Line } from 'react-icons/ri';
+=======
+import { createClient } from '@/lib/supabase';
+import { FcGoogle } from 'react-icons/fc';
+import { RiLoader4Line, RiShieldCheckLine } from 'react-icons/ri';
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e
 import { motion } from 'framer-motion';
 
 const inputStyle = { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' };
 
 export default function SignupPage() {
   const router = useRouter();
+<<<<<<< HEAD
   const { setToken } = useAuthStore();
+=======
+  const supabase = createClient();
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+<<<<<<< HEAD
+=======
+  const [success, setSuccess] = useState(false);
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+<<<<<<< HEAD
     try {
       await authAPI.register({ name, email, password });
       const loginRes = await authAPI.login({ email, password });
@@ -45,6 +60,21 @@ export default function SignupPage() {
 
   const handleGoogle = async () => {
     window.location.href = `http://localhost:5000/api/v1/auth/google`;
+=======
+    const { error } = await supabase.auth.signUp({
+      email, password,
+      options: { data: { full_name: name } },
+    });
+    if (error) { setError(error.message); setLoading(false); }
+    else { setSuccess(true); setLoading(false); }
+  };
+
+  const handleGoogle = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/dashboard` },
+    });
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e
   };
 
   return (
@@ -67,6 +97,23 @@ export default function SignupPage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.15 }}>
           <BorderGlow glowColor="45 155 131" backgroundColor="#080808" borderRadius={24} glowRadius={60} glowIntensity={1.2}>
             <div className="card-body-lg">
+<<<<<<< HEAD
+=======
+              {success ? (
+                <div className="text-center py-8">
+                  <div className="w-14 h-14 rounded-full mx-auto flex items-center justify-center text-2xl mb-5"
+                    style={{ background: 'rgba(45,155,131,0.15)', border: '1px solid rgba(45,155,131,0.3)', color: '#2D9B83' }}>
+                    ✓
+                  </div>
+                  <h2 className="text-xl font-black text-white mb-3">Account created</h2>
+                  <p className="text-zinc-500 text-sm">
+                    Check your email to confirm, then{' '}
+                    <Link href="/login" className="text-white underline">sign in</Link>.
+                  </p>
+                </div>
+              ) : (
+                <>
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e
                   <h1 className="text-2xl font-black text-white">Create account</h1>
                   <p className="text-zinc-500 text-sm mt-1 mb-8">Free forever. No credit card needed.</p>
 
@@ -123,13 +170,23 @@ export default function SignupPage() {
                     Already have an account?{' '}
                     <Link href="/login" className="text-zinc-300 hover:text-white transition-colors">Sign in</Link>
                   </p>
+<<<<<<< HEAD
+=======
+                </>
+              )}
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e
             </div>
           </BorderGlow>
         </motion.div>
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
           className="flex items-center justify-center gap-2 mt-6 text-zinc-700 text-[10px] font-mono">
+<<<<<<< HEAD
           <span>🔒 Secured by backend · Verified on Solana</span>
+=======
+          <RiShieldCheckLine className="text-[#2D9B83]/50" />
+          Secured by Supabase · Verified on Solana
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e
         </motion.div>
       </div>
     </main>

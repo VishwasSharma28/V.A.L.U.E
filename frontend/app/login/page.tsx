@@ -5,17 +5,27 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BorderGlow from '@/components/cards/BorderGlow';
 import BlurText from '@/components/effects/BlurText';
+<<<<<<< HEAD
 import { authAPI } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
+=======
+import { createClient } from '@/lib/supabase';
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e
 import { FcGoogle } from 'react-icons/fc';
 import { RiLoader4Line, RiShieldCheckLine } from 'react-icons/ri';
 import { motion } from 'framer-motion';
 
 export default function LoginPage() {
   const router = useRouter();
+<<<<<<< HEAD
   const { setToken } = useAuthStore();
   const [email, setEmail] = useState('vishwas@value.app');
   const [password, setPassword] = useState('Demo@1234');
+=======
+  const supabase = createClient();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -23,6 +33,7 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
+<<<<<<< HEAD
     try {
       const res = await authAPI.login({ email, password });
       const { user, accessToken } = res.data;
@@ -41,6 +52,18 @@ export default function LoginPage() {
   const handleGoogle = async () => {
     // Google OAuth via backend - redirect to backend OAuth endpoint
     window.location.href = `http://localhost:5000/api/v1/auth/google`;
+=======
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) { setError(error.message); setLoading(false); }
+    else router.push('/dashboard');
+  };
+
+  const handleGoogle = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/dashboard` },
+    });
+>>>>>>> b81abaa3dee1bca3efe2a99cd169b116e9a7135e
   };
 
   return (
