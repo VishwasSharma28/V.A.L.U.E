@@ -5,16 +5,17 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BorderGlow from '@/components/cards/BorderGlow';
 import BlurText from '@/components/effects/BlurText';
-import { createClient } from '@/lib/supabase';
+import { authAPI } from '@/lib/api';
+import { useAuthStore } from '@/store/auth';
 import { FcGoogle } from 'react-icons/fc';
 import { RiLoader4Line, RiShieldCheckLine } from 'react-icons/ri';
 import { motion } from 'framer-motion';
 
 export default function LoginPage() {
   const router = useRouter();
-  const supabase = createClient();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { setToken } = useAuthStore();
+  const [email, setEmail] = useState('vishwas@value.app');
+  const [password, setPassword] = useState('Demo@1234');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -22,16 +23,24 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) { setError(error.message); setLoading(false); }
-    else router.push('/dashboard');
+    try {
+      const res = await authAPI.login({ email, password });
+      const { user, accessToken } = res.data;
+      setToken(accessToken, user);
+      router.push('/dashboard');
+    } catch (err: unknown) {
+      const msg =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+          : undefined;
+      setError(msg || 'Login failed');
+      setLoading(false);
+    }
   };
 
   const handleGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/dashboard` },
-    });
+    // Google OAuth via backend - redirect to backend OAuth endpoint
+    window.location.href = `http://localhost:5000/api/v1/auth/google`;
   };
 
   return (

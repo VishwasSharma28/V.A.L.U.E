@@ -1,0 +1,471 @@
+// Prisma Schema — V.A.L.U.E Backend
+// Value Assessment & Ledger for Usage Efficiency
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────
+
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+}
+
+enum BillingCycle {
+  MONTHLY
+  QUARTERLY
+  SEMI_ANNUAL
+  ANNUAL
+  LIFETIME
+  ONE_TIME
+}
+
+enum UsageFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  RARELY
+  NEVER
+}
+
+enum RecommendationType {
+  DOWNGRADE
+  CANCEL
+  UPGRADE
+  CONSOLIDATE
+  UNUSED_BENEFIT
+  OVERLAP_DETECTED
+  COST_OPTIMIZATION
+  COMPLEMENTARY
+}
+
+enum NotificationType {
+  BILLING_REMINDER
+  WASTE_ALERT
+  RECOMMENDATION
+  BLOCKCHAIN_CONFIRMED
+  USAGE_REPORT
+  SCORE_UPDATE
+  SYSTEM
+}
+
+enum LedgerStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+}
+
+enum SharedPlanRole {
+  OWNER
+  MEMBER
+}
+
+enum Region {
+  GLOBAL
+  INDIA
+  US
+  EU
+  ASIA
+  OTHER
+}
+
+enum BusinessType {
+  B2C
+  B2B
+  BOTH
+}
+
+// ─────────────────────────────────────────
+// SUBSCRIPTION TAXONOMY
+// ─────────────────────────────────────────
+
+model SubscriptionCategory {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  icon        String?
+  color       String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  subcategories SubscriptionSubcategory[]
+
+  @@index([order])
+  @@index([isActive])
+}
+
+model SubscriptionSubcategory {
+  id         String   @id @default(uuid())
+  categoryId String
+  name       String
+  description String?
+  icon       String?
+  order      Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  category   SubscriptionCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  providers  SubscriptionProvider[]
+
+  @@index([categoryId])
+  @@index([order])
+  @@index([isActive])
+}
+
+model SubscriptionProvider {
+  id            String   @id @default(uuid())
+  subcategoryId String
+  name          String
+  description   String?
+  logoUrl       String?
+  website       String?
+  region        Region   @default(GLOBAL)
+  businessType  BusinessType @default(B2C)
+  tags          String[]
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  subcategory   SubscriptionSubcategory @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+  planTypes     SubscriptionPlanType[]
+
+  @@index([subcategoryId])
+  @@index([region])
+  @@index([businessType])
+  @@index([isActive])
+}
+
+model SubscriptionPlanType {
+  id         String   @id @default(uuid())
+  providerId String
+  name       String   // e.g., "Prepaid", "Postpaid", "Premium", "Basic"
+  description String?
+  order      Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  provider   SubscriptionProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  plans      SubscriptionPlan[]
+
+  @@index([providerId])
+  @@index([order])
+  @@index([isActive])
+}
+
+model SubscriptionPlan {
+  id           String       @id @default(uuid())
+  planTypeId   String
+  name         String       // e.g., "₹889 Family Pack", "Netflix Premium"
+  description  String?
+  monthlyCost  Float
+  billingCycle BillingCycle @default(MONTHLY)
+  features     String[]     // Array of features included
+  tags         String[]
+  isPopular    Boolean      @default(false)
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+
+  planType     SubscriptionPlanType @relation(fields: [planTypeId], references: [id], onDelete: Cascade)
+  userSubscriptions UserSubscription[]
+
+  @@index([planTypeId])
+  @@index([monthlyCost])
+  @@index([isPopular])
+  @@index([isActive])
+}
+
+// ─────────────────────────────────────────
+// USER
+// ─────────────────────────────────────────
+
+model User {
+  id               String          @id @default(uuid())
+  name             String
+  email            String          @unique
+  passwordHash     String?
+  avatar           String?
+  provider         AuthProvider    @default(EMAIL)
+  providerId       String?
+  emailVerified    Boolean         @default(false)
+  refreshToken     String?
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  verifyToken      String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  userSubscriptions UserSubscription[]
+  usageLogs         UsageLog[]
+  recommendations   Recommendation[]
+  ledgerRecords     LedgerRecord[]
+  notifications     Notification[]
+  uploadedFiles     UploadedFile[]
+  settings          Settings?
+  ownedPlans        SharedPlan[]    @relation("PlanOwner")
+  sharedMemberships SharedMember[]
+  analyticsSnapshots AnalyticsSnapshot[]
+
+  @@index([email])
+  @@index([provider, providerId])
+}
+
+// ─────────────────────────────────────────
+// USER SUBSCRIPTION
+// ─────────────────────────────────────────
+
+model UserSubscription {
+  id              String         @id @default(uuid())
+  userId          String
+  planId          String
+  usageFrequency  UsageFrequency @default(MONTHLY)
+  lastUsed        DateTime?
+  autoRenew       Boolean        @default(true)
+  notes           String?
+  nextBillingDate DateTime?
+  isActive        Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan            SubscriptionPlan @relation(fields: [planId], references: [id])
+  usageLogs       UsageLog[]
+  recommendations Recommendation[]
+  ledgerRecords   LedgerRecord[]
+  valueScores     ValueScore[]
+  uploadedFiles   UploadedFile[]
+
+  @@index([userId])
+  @@index([planId])
+  @@index([isActive])
+}
+
+// ─────────────────────────────────────────
+// VALUE SCORE
+// ─────────────────────────────────────────
+
+model ValueScore {
+  id                 String       @id @default(uuid())
+  userSubscriptionId String
+  efficiencyScore    Float        // 0-100
+  wastePercentage    Float        // 0-100
+  costPerUse         Float
+  usageScore         Float        // 0-100
+  recommendationScore Float       // 0-100
+  overallScore       Float        // 0-100
+  computedAt         DateTime     @default(now())
+
+  userSubscription   UserSubscription @relation(fields: [userSubscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([userSubscriptionId])
+  @@index([computedAt])
+}
+
+// ─────────────────────────────────────────
+// USAGE LOG
+// ─────────────────────────────────────────
+
+model UsageLog {
+  id                String       @id @default(uuid())
+  userId            String
+  userSubscriptionId String
+  sessionDate       DateTime     @default(now())
+  durationHours     Float
+  featuresUsed      String[]
+  notes             String?
+  createdAt         DateTime     @default(now())
+
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userSubscription  UserSubscription @relation(fields: [userSubscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userSubscriptionId])
+  @@index([sessionDate])
+}
+
+// ─────────────────────────────────────────
+// RECOMMENDATION
+// ─────────────────────────────────────────
+
+model Recommendation {
+  id                String             @id @default(uuid())
+  userId            String
+  userSubscriptionId String?
+  type              RecommendationType
+  title             String
+  description       String
+  savingAmount      Float?
+  impactScore       Float              @default(0) // 0-100
+  isRead            Boolean            @default(false)
+  isDismissed       Boolean            @default(false)
+  expiresAt         DateTime?
+  createdAt         DateTime           @default(now())
+
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userSubscription  UserSubscription?  @relation(fields: [userSubscriptionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([isDismissed])
+}
+
+// ─────────────────────────────────────────
+// LEDGER RECORD (Blockchain)
+// ─────────────────────────────────────────
+
+model LedgerRecord {
+  id                String       @id @default(uuid())
+  userId            String
+  userSubscriptionId String
+  txHash            String       @unique
+  blockNumber       String?
+  network           String       @default("solana-devnet")
+  status            LedgerStatus @default(PENDING)
+  amount            Float
+  description       String?
+  metadata          Json?
+  confirmedAt       DateTime?
+  createdAt         DateTime     @default(now())
+
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userSubscription  UserSubscription @relation(fields: [userSubscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([txHash])
+  @@index([status])
+}
+
+// ─────────────────────────────────────────
+// SHARED PLAN
+// ─────────────────────────────────────────
+
+model SharedPlan {
+  id           String         @id @default(uuid())
+  ownerId      String
+  name         String
+  description  String?
+  totalCost    Float
+  maxMembers   Int            @default(5)
+  inviteCode   String         @unique @default(uuid())
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  owner        User           @relation("PlanOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members      SharedMember[]
+
+  @@index([ownerId])
+  @@index([inviteCode])
+}
+
+model SharedMember {
+  id           String         @id @default(uuid())
+  planId       String
+  userId       String
+  role         SharedPlanRole @default(MEMBER)
+  monthlyShare Float
+  joinedAt     DateTime       @default(now())
+
+  plan         SharedPlan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, userId])
+  @@index([planId])
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────
+// NOTIFICATION
+// ─────────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String
+  isRead    Boolean          @default(false)
+  metadata  Json?
+  createdAt DateTime         @default(now())
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────
+// UPLOADED FILE
+// ─────────────────────────────────────────
+
+model UploadedFile {
+  id                String        @id @default(uuid())
+  userId            String
+  userSubscriptionId String?
+  filename          String
+  originalName      String
+  mimeType          String
+  sizeBytes         Int
+  url               String
+  publicId          String?       // Cloudinary public ID
+  createdAt         DateTime      @default(now())
+
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userSubscription  UserSubscription?  @relation(fields: [userSubscriptionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([userSubscriptionId])
+}
+
+// ─────────────────────────────────────────
+// ANALYTICS SNAPSHOT
+// ─────────────────────────────────────────
+
+model AnalyticsSnapshot {
+  id               String   @id @default(uuid())
+  userId           String
+  period           String   // "2024-05", "2024-W20", "2024"
+  granularity      String   // "monthly" | "weekly" | "daily" | "yearly"
+  totalSpend       Float
+  totalWaste       Float
+  wastePercent     Float
+  avgScore         Float
+  categoryBreakdown Json
+  topWastedService String?
+  recoveredValue   Float    @default(0)
+  createdAt        DateTime @default(now())
+
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, period, granularity])
+  @@index([userId])
+  @@index([granularity])
+}
+
+// ─────────────────────────────────────────
+// SETTINGS
+// ─────────────────────────────────────────
+
+model Settings {
+  id                   String   @id @default(uuid())
+  userId               String   @unique
+  currency             String   @default("INR")
+  theme                String   @default("dark")
+  billingReminders     Boolean  @default(true)
+  wasteAlerts          Boolean  @default(true)
+  weeklyDigest         Boolean  @default(true)
+  blockchainAlerts     Boolean  @default(true)
+  privacy              Json?
+  connectedAccounts    Json?
+  updatedAt            DateTime @updatedAt
+
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
