@@ -7,7 +7,7 @@ services:
       - "5000:5000"
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/value_db
+      DATABASE_URL: postgresql://postgres:${DB_PASSWORD}@postgres:5432/value_db
       REDIS_URL: redis://redis:6379
     env_file: .env
     depends_on:
@@ -35,7 +35,7 @@ services:
     image: postgres:16-alpine
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: value_db
     volumes:
       - pgdata:/var/lib/postgresql/data
